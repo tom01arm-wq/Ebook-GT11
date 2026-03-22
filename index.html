@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gifted Gen 11 - Yearbook E-book</title>
+    <meta name="description" content="E-book ที่ระลึก Gifted Gen 11 โรงเรียนกันทรารมณ์ - Messenger From Friends AND WHERE TO FIND THEM">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- หน้าจอโหลด -->
+    <div id="loading-screen">
+        <div class="loader-spinner"></div>
+        <h2>GIFTED GEN 11</h2>
+        <p>Loading Yearbook...</p>
+    </div>
+
+    <!-- แถบข้อมูลโรงเรียน -->
+    <div class="school-banner" id="school-info"></div>
+
+    <!-- แถบควบคุมด้านบน -->
+    <div id="top-controls">
+        <input type="text" id="search-input" placeholder="ค้นหาชื่อ / ชื่อเล่น / รหัส...">
+        <button id="btn-search">ค้นหา</button>
+        <button id="btn-toc">สารบัญ</button>
+        <button id="btn-thumbnail">ภาพรวม</button>
+    </div>
+
+    <!-- พื้นที่แสดง Flipbook -->
+    <div id="ebook-viewport">
+        <div id="flipbook">
+            <!-- หน้าต่างๆจะถูกสร้างด้วย JavaScript -->
+        </div>
+    </div>
+
+    <!-- แถบควบคุมด้านล่าง -->
+    <div id="bottom-controls">
+        <button id="prev-btn">&#9664; ก่อนหน้า</button>
+        <span id="page-num">หน้า 1</span>
+        <input type="range" id="page-slider" min="1" value="1">
+        <input type="number" id="page-jump" min="1" placeholder="ข้าม">
+        <button id="next-btn">ถัดไป &#9654;</button>
+    </div>
+
+    <!-- TOC Sidebar Overlay -->
+    <div id="toc-overlay">
+        <div id="toc-sidebar">
+            <h3>สารบัญ (Table of Contents)</h3>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+
+    <!-- Thumbnail Overview Modal -->
+    <div id="thumbnail-overlay">
+        <button id="thumbnail-close">&times;</button>
+        <div id="thumbnail-grid"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/3/turn.min.js"></script>
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
