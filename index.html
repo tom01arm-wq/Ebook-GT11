@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gifted Gen 11 - Yearbook E-book</title>
     <meta name="description" content="E-book ที่ระลึก Gifted Gen 11 โรงเรียนกันทรารมณ์ - Messenger From Friends AND WHERE TO FIND THEM">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
 
@@ -53,9 +53,10 @@
 
     <!-- Thumbnail Overview Modal -->
     <div id="thumbnail-overlay">
-        <button id="thumbnail-close">&times;</button>
         <div id="thumbnail-grid"></div>
     </div>
+    <!-- ปุ่มปิด Thumbnail ต้องอยู่นอก overlay เพื่อให้ CSS selector ~ ทำงานได้ -->
+    <button id="thumbnail-close">&times;</button>
 
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

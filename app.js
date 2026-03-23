@@ -36,21 +36,9 @@ $(document).ready(function () {
     // ===== 1. หน้าปก =====
     addPage(`
         <div class="page cover-page">
-            <div class="page-inner">
-                <div class="cover-border-frame">
-                    <div class="cover-logo">
-                        <img src="assets/logo.png" alt="School Logo" onerror="this.style.display='none'">
-                    </div>
-                    <div class="cover-photo-frame">
-                        <img src="assets/cover-photo.jpg" alt="Gifted Gen 11" onerror="this.parentElement.innerHTML='<span style=&quot;color:#888;font-size:0.8rem;&quot;>Gifted Gen 11 Class Photo</span>'">
-                    </div>
-                    <div class="cover-text-area">
-                        <h1 class="title-yearbook">YEARBOOK</h1>
-                        <h2 class="title-gen">- GIFTED GEN 11 -</h2>
-                        <p class="title-date">GRADUATED 04-03-2026</p>
-                        <p class="title-school">โรงเรียนกันทรารมณ์ สพม.ศรีสะเกษ ยโสธร</p>
-                    </div>
-                </div>
+            <div class="cover-full-img-wrap">
+                <img src="assets/หน้าปก.png" alt="Gifted Gen 11 Yearbook Cover"
+                     onerror="this.style.display='none'; this.parentElement.classList.add('cover-fallback')">
             </div>
         </div>
     `);
@@ -73,85 +61,111 @@ $(document).ready(function () {
         </div>
     `);
 
-    // ===== 3. Section 1: Messenger From Friends =====
-    addPage(`
-        <div class="page section-divider">
-            <div class="page-inner">
-                <div class="divider-icon">&#9993;</div>
-                <h2 class="divider-title">MESSENGER FROM<br>FRIENDS</h2>
-                <div class="divider-line"></div>
-                <p class="divider-subtitle">AND WHERE TO FIND THEM</p>
-                <p class="divider-subtitle" style="margin-top:12px;font-size:0.8rem;opacity:0.5;">ม.6/11 Gifted Gen 11</p>
-            </div>
-        </div>
-    `);
-    tocEntries.push({ label: '--- Messenger From Friends ---', page: totalPages, section: true });
+    // ==========================================================
+    // 3. Section 1: Students (Polaroid Grid & Notebook Pages)
+    // ==========================================================
+    const studentsPerGrid = 9;
+    const totalStudents = ebookData.students.length;
+    let studentIndex = 0;
 
-    // ===== สร้างหน้านักเรียน (2 หน้าต่อนักเรียน) =====
-    ebookData.students.forEach(function (s) {
-        // หน้าที่ 1: รูป + ข้อมูลส่วนตัว + 3 ข้อความแรก
-        const p1 = addPage(`
-            <div class="page student-page-1" data-search="${escapeHtml(s.name)} ${escapeHtml(s.nickname)} ${escapeHtml(s.id)}">
+    while (studentIndex < totalStudents) {
+        // กลุ่มนักเรียนที่จะอยู่ใน Grid หน้านี้
+        const gridStudents = ebookData.students.slice(studentIndex, studentIndex + studentsPerGrid);
+        
+        // --- 3.1 สร้างหน้า Grid Polaroid ---
+        let gridHtml = `
+            <div class="page locker-page">
                 <div class="page-inner">
-                    <div class="student-header">
-                        <span class="student-id-badge">${escapeHtml(s.id)}</span>
-                        <div>
-                            <div class="student-name">${escapeHtml(s.name)}</div>
-                            <div class="student-nickname">(${escapeHtml(s.nickname)})</div>
-                        </div>
+                    <div class="polaroid-grid">
+        `;
+        
+        gridStudents.forEach(st => {
+            gridHtml += `
+                <div class="polaroid-item">
+                    <img src="assets/students/${st.id}.jpg" alt="${escapeHtml(st.name)}" 
+                         onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=&quot;font-size:10px;text-align:center;&quot;>${escapeHtml(st.nickname)}</span>'">
+                    <div class="polaroid-name">${escapeHtml(st.name)}</div>
+                </div>
+            `;
+        });
+        
+        // ใส่ slot ว่างปกป้อง grid layout ถ้าไม่ครบ 9 คน
+        for (let i = gridStudents.length; i < 9; i++) {
+            gridHtml += `<div class="polaroid-item" style="visibility:hidden;"></div>`;
+        }
+        
+        gridHtml += `
                     </div>
-                    <div class="student-body">
-                        <div class="student-photo-col">
-                            <div class="photo-frame">
+                    ${pageNumHtml(totalPages, 'center')}
+                </div>
+            </div>
+        `;
+        
+        const gridPage = addPage(gridHtml);
+        if (studentIndex === 0) {
+            tocEntries.push({ label: '--- Students ---', page: gridPage, section: true });
+        }
+        
+        // --- 3.2 สร้างหน้าเดี่ยว (Notebook) ของนักเรียนในกลุ่มนี้ ---
+        gridStudents.forEach((s, idx) => {
+            // สลับสีฟ้า/ชมพู สลับเจาะรูซ้ายขวาตามหน้าสมุด
+            const isLeftPage = (totalPages % 2 !== 0);
+            const bgColor = (idx % 2 === 0) ? 'var(--pastel-blue)' : 'var(--pastel-pink)';
+            const bindingPos = isLeftPage ? 'right: 15px;' : 'left: 15px;';
+            const pageAlign = isLeftPage ? 'left' : 'right';
+            
+            const p1 = addPage(`
+                <div class="page notebook-page" style="background-color: ${bgColor}" data-search="${escapeHtml(s.name)} ${escapeHtml(s.nickname)} ${escapeHtml(s.id)}">
+                    <div class="notebook-binding" style="${bindingPos}">
+                        <div class="binding-hole"></div><div class="binding-hole"></div><div class="binding-hole"></div><div class="binding-hole"></div>
+                        <div class="binding-hole"></div><div class="binding-hole"></div><div class="binding-hole"></div><div class="binding-hole"></div>
+                    </div>
+                    <div class="page-inner notebook-content">
+                        <div class="notebook-header">
+                            <div class="profile-polaroid">
                                 <img src="assets/students/${s.id}.jpg" alt="${escapeHtml(s.nickname)}" 
-                                     onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=&quot;photo-frame-text&quot;>${escapeHtml(s.nickname)}</span>'">
+                                     onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=&quot;text-align:center;&quot;>${escapeHtml(s.nickname)}</span>'">
+                            </div>
+                            <div class="profile-info">
+                                <div class="profile-name-badge">${escapeHtml(s.name)}</div>
+                                <div class="profile-nickname">${escapeHtml(s.nickname)} (${escapeHtml(s.id)})</div>
+                                <div class="contact-info">${formatContact(s.contact)}</div>
+                                <div class="moto-text">"${escapeHtml(s.motto)}"</div>
                             </div>
                         </div>
-                        <div class="student-text-col" id="s-text-${s.id}-${totalPages}">
-                            <div class="msg-section">
-                                <div class="msg-label">สิ่งที่อยากบอกเพื่อนๆ</div>
-                                <div class="msg-text">${escapeHtml(s.friends)}</div>
+                        
+                        <div class="messages-grid vintage-note">
+                            <div class="msg-box">
+                                <span class="msg-title">สิ่งที่อยากบอกเพื่อนๆ</span>
+                                <div class="msg-content">${escapeHtml(s.friends)}</div>
                             </div>
-                            <div class="msg-section">
-                                <div class="msg-label">สิ่งที่อยากบอกรุ่นน้อง</div>
-                                <div class="msg-text">${escapeHtml(s.juniors)}</div>
+                            <div class="msg-box">
+                                <span class="msg-title">สิ่งที่อยากบอกรุ่นน้อง</span>
+                                <div class="msg-content">${escapeHtml(s.juniors)}</div>
                             </div>
-                            <div class="msg-section">
-                                <div class="msg-label">สิ่งที่อยากบอกคุณครู</div>
-                                <div class="msg-text">${escapeHtml(s.teachers)}</div>
+                            <div class="msg-box">
+                                <span class="msg-title">สิ่งที่อยากบอกคุณครู</span>
+                                <div class="msg-content">${escapeHtml(s.teachers)}</div>
+                            </div>
+                            <div class="msg-box">
+                                <span class="msg-title">ฝากถึงสายรหัส</span>
+                                <div class="msg-content">${escapeHtml(s.lineage)}</div>
+                            </div>
+                            <div class="msg-box" style="grid-column: span 2;">
+                                <span class="msg-title">ความรู้สึกถึงห้อง Gifted</span>
+                                <div class="msg-content" style="text-align:center;">${escapeHtml(s.gifted)}</div>
                             </div>
                         </div>
+                        
+                        ${pageNumHtml(totalPages, pageAlign)}
                     </div>
-                    ${pageNumHtml(totalPages, 'left')}
                 </div>
-            </div>
-        `);
-        tocEntries.push({ label: `${s.name} (${s.nickname})`, page: p1, section: false });
-
-        // หน้าที่ 2: ข้อความเพิ่มเติม + คติพจน์ + ช่องทางติดต่อ
-        addPage(`
-            <div class="page student-page-2" data-search="${escapeHtml(s.name)} ${escapeHtml(s.nickname)} ${escapeHtml(s.id)}">
-                <div class="page-inner">
-                    <div class="student-page-2-header">${escapeHtml(s.name)} (${escapeHtml(s.nickname)})</div>
-                    <div class="student-content-2" id="s-text2-${s.id}-${totalPages}">
-                        <div class="msg-section">
-                            <div class="msg-label">สิ่งที่อยากบอกน้องรหัส/หลานรหัส</div>
-                            <div class="msg-text">${escapeHtml(s.lineage)}</div>
-                        </div>
-                        <div class="msg-section">
-                            <div class="msg-label">ความรู้สึกถึงห้อง Gifted</div>
-                            <div class="msg-text">${escapeHtml(s.gifted)}</div>
-                        </div>
-                        <div class="motto-contact-box">
-                            <div class="motto-text">"${escapeHtml(s.motto)}"</div>
-                            <div class="contact-text">${formatContact(s.contact)}</div>
-                        </div>
-                    </div>
-                    ${pageNumHtml(totalPages, 'right')}
-                </div>
-            </div>
-        `);
-    });
+            `);
+            tocEntries.push({ label: `${s.name} (${s.nickname})`, page: p1, section: false });
+        });
+        
+        studentIndex += studentsPerGrid;
+    }
 
     // ===== 4. Section 2: Gifted Teacher Messenger =====
     addPage(`
@@ -235,13 +249,35 @@ $(document).ready(function () {
         <div class="page section-divider">
             <div class="page-inner">
                 <div class="divider-icon">&#128279;</div>
-                <h2 class="divider-title">JUNIORS TO SENIORS</h2>
+                <h2 class="divider-title">LINEAGE<br>MESSENGER</h2>
                 <div class="divider-line"></div>
                 <p class="divider-subtitle">ข้อความจากน้องรหัส/หลานรหัส ถึงพี่รหัส</p>
             </div>
         </div>
     `);
     tocEntries.push({ label: '--- ข้อความจากสายรหัส ---', page: totalPages, section: true });
+
+    // ===== ฟังก์ชันแบ่ง Lineage Messages เป็น Chunks =====
+    function chunkLineageMessages(msgs) {
+        // ถ้าข้อความทั้งหมดรวมกันสั้น ใส่หน้าเดียว
+        const totalLen = msgs.reduce(function (sum, m) { return sum + m.msg.length; }, 0);
+        if (totalLen <= 1200 && msgs.length <= 5) return [msgs];
+        // แบ่งตามความยาว
+        const chunks = [];
+        let current = [];
+        let currentLen = 0;
+        msgs.forEach(function (m) {
+            if (currentLen + m.msg.length > 1200 && current.length > 0) {
+                chunks.push(current);
+                current = [];
+                currentLen = 0;
+            }
+            current.push(m);
+            currentLen += m.msg.length;
+        });
+        if (current.length > 0) chunks.push(current);
+        return chunks;
+    }
 
     // จัดกลุ่มข้อความตามรหัสฐาน (เช่น 009, 009_2 → กลุ่ม 009)
     const lineageGroups = {};
@@ -258,8 +294,7 @@ $(document).ready(function () {
 
     sortedCodes.forEach(function (code) {
         const msgs = lineageGroups[code];
-        // คำนวณจำนวน message ที่ใส่ได้ในหนึ่งหน้า (ประมาณ 4-5 messages สั้นๆ)
-        // ถ้า message ยาวมากหรือมีหลายข้อความ ให้แบ่งหลายหน้า
+        // แบ่งข้อความเป็น chunk ถ้ายาวเกินไป
         const chunks = chunkLineageMessages(msgs);
 
         chunks.forEach(function (chunk, idx) {
@@ -312,28 +347,6 @@ $(document).ready(function () {
             </div>
         </div>
     `);
-
-    // ===== ฟังก์ชันแบ่ง Lineage Messages เป็น Chunks =====
-    function chunkLineageMessages(msgs) {
-        // ถ้าข้อความทั้งหมดรวมกันสั้น ใส่หน้าเดียว
-        const totalLen = msgs.reduce(function (sum, m) { return sum + m.msg.length; }, 0);
-        if (totalLen <= 1200 && msgs.length <= 5) return [msgs];
-        // แบ่งตามความยาว
-        const chunks = [];
-        let current = [];
-        let currentLen = 0;
-        msgs.forEach(function (m) {
-            if (currentLen + m.msg.length > 1200 && current.length > 0) {
-                chunks.push(current);
-                current = [];
-                currentLen = 0;
-            }
-            current.push(m);
-            currentLen += m.msg.length;
-        });
-        if (current.length > 0) chunks.push(current);
-        return chunks;
-    }
 
     // ===== 8. สร้างสารบัญในหน้า E-book =====
     const tocList1 = $('#toc-list');
@@ -561,7 +574,8 @@ $(document).ready(function () {
                 bgColor = '#5E1619'; textColor = '#F4D383'; displayText = 'YEARBOOK';
             } else if ($page.hasClass('section-divider')) {
                 bgColor = '#1B5E20'; textColor = '#F1C40F';
-                displayText = $page.find('.divider-title').text().replace(/<br>/g, ' ').substring(0, 20);
+                // ใช้ innerText เพื่อให้ <br> render เป็น newline แล้ว replace เป็น space
+                displayText = ($page.find('.divider-title')[0].innerText || $page.find('.divider-title').text()).replace(/\n/g, ' ').trim().substring(0, 20);
             } else if ($page.hasClass('toc-page')) {
                 displayText = 'สารบัญ';
             } else if ($page.hasClass('closing-page')) {
@@ -587,6 +601,10 @@ $(document).ready(function () {
 
     $('#btn-thumbnail').click(openThumbnailOverlay);
     $('#thumbnail-close').click(closeThumbnailOverlay);
+    // ปิด overlay เมื่อคลิกพื้นหลัง (ไม่ใช่ thumb-item)
+    $('#thumbnail-overlay').on('click', function (e) {
+        if (e.target === this) closeThumbnailOverlay();
+    });
     $('#thumbnail-overlay').on('click', '.thumb-item', function () {
         const page = parseInt($(this).data('page'));
         closeThumbnailOverlay();
